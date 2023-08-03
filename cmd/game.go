@@ -41,7 +41,11 @@ func (g *Game) StartPlayerTurn(p *Player) {
 		g.board.Update(colMove, rowMove, p.symbol)
 		g.board.Draw(true)
 
-		winner := g.CheckWinner()
+		winner, isTie := g.CheckWinner()
+		if isTie {
+			fmt.Println("Tie game!")
+			g.End()
+		}
 		if winner != nil {
 			fmt.Printf("Winner is:%s\n", winner.name)
 			g.End()
@@ -54,25 +58,28 @@ func (g *Game) End() {
 	os.Exit(1)
 }
 
-func (g *Game) CheckWinner() *Player {
+func (g *Game) CheckWinner() (*Player, bool) {
+	if g.isTieGame() {
+		return nil, true
+	}
 	p := g.CheckRows()
 	if p != nil {
-		return p
+		return p, false
 	}
 	p = g.CheckColumns()
 	if p != nil {
-		return p
+		return p, false
 	}
 
 	p = g.CheckDiagonals()
 	if p != nil {
-		return p
+		return p, false
 	}
-	return nil
+	return nil, false
 }
 
 func (g *Game) CheckRows() *Player {
-	for _, col := range g.board.spaces {
+	for _, col := range g.board.cells {
 		if col[0] != " " && col[0] == col[1] && col[1] == col[2] {
 			switch col[0] {
 			case g.players[0].symbol:
@@ -86,12 +93,12 @@ func (g *Game) CheckRows() *Player {
 }
 
 func (g *Game) CheckColumns() *Player {
-	for col := 0; col < len(g.board.spaces); col++ {
-		if g.board.spaces[0][col] != " " &&
-			g.board.spaces[0][col] == g.board.spaces[1][col] &&
-			g.board.spaces[1][col] == g.board.spaces[2][col] {
+	for col := 0; col < len(g.board.cells); col++ {
+		if g.board.cells[0][col] != " " &&
+			g.board.cells[0][col] == g.board.cells[1][col] &&
+			g.board.cells[1][col] == g.board.cells[2][col] {
 
-			switch g.board.spaces[0][col] {
+			switch g.board.cells[0][col] {
 			case g.players[0].symbol:
 				return g.players[0]
 			case g.players[1].symbol:
@@ -103,11 +110,11 @@ func (g *Game) CheckColumns() *Player {
 }
 
 func (g *Game) CheckDiagonals() *Player {
-	if g.board.spaces[0][0] != " " &&
-		g.board.spaces[0][0] == g.board.spaces[1][1] &&
-		g.board.spaces[1][1] == g.board.spaces[2][2] {
+	if g.board.cells[0][0] != " " &&
+		g.board.cells[0][0] == g.board.cells[1][1] &&
+		g.board.cells[1][1] == g.board.cells[2][2] {
 
-		switch g.board.spaces[0][0] {
+		switch g.board.cells[0][0] {
 		case g.players[0].symbol:
 			return g.players[0]
 		case g.players[1].symbol:
@@ -115,11 +122,11 @@ func (g *Game) CheckDiagonals() *Player {
 		}
 	}
 
-	if g.board.spaces[2][0] != " " &&
-		g.board.spaces[2][0] == g.board.spaces[1][1] &&
-		g.board.spaces[1][1] == g.board.spaces[0][2] {
+	if g.board.cells[2][0] != " " &&
+		g.board.cells[2][0] == g.board.cells[1][1] &&
+		g.board.cells[1][1] == g.board.cells[0][2] {
 
-		switch g.board.spaces[2][0] {
+		switch g.board.cells[2][0] {
 		case g.players[0].symbol:
 			return g.players[0]
 		case g.players[1].symbol:
@@ -127,4 +134,15 @@ func (g *Game) CheckDiagonals() *Player {
 		}
 	}
 	return nil
+}
+
+func (g *Game) isTieGame() bool {
+	for _, row := range g.board.cells {
+		for _, cell := range row {
+			if cell == " " {
+				return false
+			}
+		}
+	}
+	return true
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type Board struct {
-	spaces [][]string
+	cells [][]string
 }
 
 func NewBoard(size int) *Board {
@@ -22,14 +22,14 @@ func NewBoard(size int) *Board {
 			grid[i][j] = " "
 		}
 	}
-	return &Board{spaces: grid}
+	return &Board{cells: grid}
 }
 
 func (b *Board) Draw(withGuides bool) {
 	if withGuides {
 		fmt.Println()
 		blankSpace := strings.Repeat(" ", 4)
-		for i := range b.spaces {
+		for i := range b.cells {
 			if i != 0 {
 				blankSpace = strings.Repeat(" ", 3)
 			}
@@ -37,7 +37,7 @@ func (b *Board) Draw(withGuides bool) {
 		}
 		fmt.Println("\n  +---+---+---+")
 
-		for i, row := range b.spaces {
+		for i, row := range b.cells {
 			fmt.Printf("%d | %s | %s | %s |\n", i, row[0], row[1], row[2])
 			fmt.Println("  +---+---+---+")
 		}
@@ -47,7 +47,7 @@ func (b *Board) Draw(withGuides bool) {
 
 	fmt.Println()
 	fmt.Println("+---+---+---+")
-	for _, row := range b.spaces {
+	for _, row := range b.cells {
 		fmt.Printf("| %s | %s | %s |\n", row[0], row[1], row[2])
 		fmt.Println("+---+---+---+")
 		fmt.Println()
@@ -64,7 +64,7 @@ func (b *Board) parseInput(input string) (int, int, error) {
 	input2 := strings.TrimSpace(parts[1])
 
 	validNums := make(map[string]bool)
-	for i, _ := range b.spaces {
+	for i, _ := range b.cells {
 		validNums[fmt.Sprintf("%d", i)] = true
 	}
 
@@ -88,7 +88,7 @@ func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
 		return 0, 0, err
 	}
 
-	if b.spaces[colMove][rowMove] != " " {
+	if b.cells[colMove][rowMove] != " " {
 		return 0, 0, errors.New("spot already taken. Please choose another spot")
 	}
 
@@ -96,5 +96,5 @@ func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
 }
 
 func (b *Board) Update(colMove, rowMove int, symbol string) {
-	b.spaces[colMove][rowMove] = symbol
+	b.cells[colMove][rowMove] = symbol
 }
