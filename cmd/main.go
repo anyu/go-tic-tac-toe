@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -9,6 +13,18 @@ func main() {
 
 	game := NewGame()
 	game.Start()
+}
+
+type Player struct {
+	name   string
+	marker string
+}
+
+func NewPlayer(name, marker string) *Player {
+	return &Player{
+		name:   name,
+		marker: marker,
+	}
 }
 
 type Game struct {
@@ -21,18 +37,36 @@ func NewGame() *Game {
 func (g *Game) Start() {
 	fmt.Println("Let's play tic tac toe!")
 	board := NewBoard(3)
-
 	board.Draw(true)
 
-	fmt.Println("Player 1 (X): Choose a spot. Eg '0,0' or '2,1'")
+	p1 := NewPlayer("Player 1", "X")
+	p2 := NewPlayer("Player 2", "O")
 
-	var player1move string
-	if _, err := fmt.Scan(&player1move); err != nil {
-		return
+	for {
+		rowMove, colMove := board.GetPlayerMove(p1)
+		board.Update(colMove, rowMove, p1.marker)
+		rowMove2, colMove2 := board.GetPlayerMove(p2)
+		board.Update(colMove2, rowMove2, p2.marker)
 	}
-	if !board.checkMoveValidity(player1move) {
-		fmt.Print("Invalid move. Please enter a valid spot.")
+}
+
+func (b *Board) GetPlayerMove(p *Player) (int, int) {
+	fmt.Printf("%s's turn: Choose a spot (eg. '0,0' or '2,1')\n", p.name)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
+
+	rowMove, colMove, err := b.parseInput(input)
+	if err != nil {
+		fmt.Print(err)
 	}
+	return rowMove, colMove
+}
+
+func (b *Board) Update(colMove, rowMove int, marker string) {
+	b.spaces[colMove][rowMove] = marker
+	b.Draw(true)
 }
 
 type Board struct {
@@ -76,41 +110,24 @@ func (b *Board) Draw(withGuides bool) {
 	}
 }
 
-func (b *Board) checkMoveValidity(input string) bool {
+func (b *Board) parseInput(input string) (int, int, error) {
 	parts := strings.Split(input, ",")
 	if len(parts) != 2 {
-		return false
+		return 0, 0, errors.New("invalid input. Enter 2 numbers separated by a comma")
 	}
-	rowNumInput := strings.TrimSpace(parts[0])
-	colNumInput := strings.TrimSpace(parts[1])
+
+	input1 := strings.TrimSpace(parts[0])
+	input2 := strings.TrimSpace(parts[1])
 
 	validNums := make(map[string]bool)
 	for i, _ := range b.spaces {
 		validNums[fmt.Sprintf("%d", i)] = true
 	}
 
-	if validNums[rowNumInput] && validNums[colNumInput] {
-		return true
+	if validNums[input1] && validNums[input2] {
+		num1, _ := strconv.Atoi(input1)
+		num2, _ := strconv.Atoi(input2)
+		return num1, num2, nil
 	}
-	return false
-}
-
-func (b *Board) MarkSpace(x, y int, mark string) {
-
-}
-
-func (b *Board) CheckRows() bool {
-	return false
-}
-
-func (b *Board) CheckColumns() bool {
-	return false
-}
-
-func (b *Board) CheckDiagonals() bool {
-	return false
-}
-
-func (b *Board) CheckWin() bool {
-	return false
+	return 0, 0, errors.New("invalid input. Try again")
 }
