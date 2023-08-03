@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 )
@@ -55,7 +56,24 @@ func (g *Game) StartPlayerTurn(p *Player) {
 }
 
 func (g *Game) End() {
-	os.Exit(1)
+	fmt.Println("Want to play again? (y/n):")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
+
+	if input == "yes" || input == "y" {
+		p1 := NewPlayer(p1Name, p1Symbol)
+		p2 := NewPlayer(p2Name, p2Symbol)
+		players := []*Player{p1, p2}
+
+		game := NewGame(players)
+		game.Start()
+	}
+
+	if input == "no" || input == "n" {
+		fmt.Println("Exiting game. Goodbye!")
+		os.Exit(1)
+	}
 }
 
 func (g *Game) CheckWinner() (*Player, bool) {
