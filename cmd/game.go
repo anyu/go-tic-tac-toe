@@ -25,19 +25,28 @@ func (g *Game) Start() {
 
 	for {
 		for _, p := range g.players {
-			rowMove, colMove := g.board.GetPlayerMove(p)
-			if ok := g.board.Update(colMove, rowMove, p.symbol); !ok {
-				fmt.Println("Spot already taken. Please choose another spot.")
-				break
-			}
-			g.board.Draw(true)
-			
-			winner := g.CheckWinner()
-			if winner != nil {
-				fmt.Printf("Winner is:%s\n", winner.name)
-				g.End()
-			}
+			g.StartPlayerTurn(p)
 		}
+	}
+}
+
+func (g *Game) StartPlayerTurn(p *Player) {
+	for {
+		rowMove, colMove, err := g.board.GetPlayerInput(p)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		g.board.Update(colMove, rowMove, p.symbol)
+		g.board.Draw(true)
+
+		winner := g.CheckWinner()
+		if winner != nil {
+			fmt.Printf("Winner is:%s\n", winner.name)
+			g.End()
+		}
+		break
 	}
 }
 

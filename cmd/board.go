@@ -76,8 +76,8 @@ func (b *Board) parseInput(input string) (int, int, error) {
 	return 0, 0, errors.New("invalid input. Try again")
 }
 
-func (b *Board) GetPlayerMove(p *Player) (int, int) {
-	fmt.Printf("%s's turn: Choose a spot (eg. '0,0' or '2,1')\n", p.name)
+func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
+	fmt.Printf("%s's turn. Choose a spot (eg. '0,0' or '2,1'):\n", p.name)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -85,17 +85,16 @@ func (b *Board) GetPlayerMove(p *Player) (int, int) {
 
 	rowMove, colMove, err := b.parseInput(input)
 	if err != nil {
-		fmt.Print(err)
+		return 0, 0, err
 	}
 
-	return rowMove, colMove
+	if b.spaces[colMove][rowMove] != " " {
+		return 0, 0, errors.New("spot already taken. Please choose another spot")
+	}
+
+	return rowMove, colMove, nil
 }
 
-func (b *Board) Update(colMove, rowMove int, symbol string) bool {
-	// space already occupied
-	if b.spaces[colMove][rowMove] != " " {
-		return false
-	}
+func (b *Board) Update(colMove, rowMove int, symbol string) {
 	b.spaces[colMove][rowMove] = symbol
-	return true
 }
