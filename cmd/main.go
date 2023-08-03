@@ -10,43 +10,49 @@ import (
 )
 
 func main() {
-
 	game := NewGame()
 	game.Start()
 }
 
 type Player struct {
 	name   string
-	marker string
+	symbol string
 }
 
-func NewPlayer(name, marker string) *Player {
+func NewPlayer(name, symbol string) *Player {
 	return &Player{
 		name:   name,
-		marker: marker,
+		symbol: symbol,
 	}
 }
 
-type Game struct {
-}
+type Game struct{}
 
 func NewGame() *Game {
 	return &Game{}
 }
 
 func (g *Game) Start() {
+	fmt.Println()
 	fmt.Println("Let's play tic tac toe!")
+
 	board := NewBoard(3)
 	board.Draw(true)
 
 	p1 := NewPlayer("Player 1", "X")
 	p2 := NewPlayer("Player 2", "O")
+	players := []*Player{p1, p2}
 
 	for {
-		rowMove, colMove := board.GetPlayerMove(p1)
-		board.Update(colMove, rowMove, p1.marker)
-		rowMove2, colMove2 := board.GetPlayerMove(p2)
-		board.Update(colMove2, rowMove2, p2.marker)
+		for _, p := range players {
+			rowMove, colMove := board.GetPlayerMove(p)
+			if ok := board.Update(colMove, rowMove, p.symbol); !ok {
+				fmt.Println("Spot already taken. Please choose another spot.")
+				break
+			}
+			board.Draw(true)
+			board.Check()
+		}
 	}
 }
 
@@ -61,12 +67,17 @@ func (b *Board) GetPlayerMove(p *Player) (int, int) {
 	if err != nil {
 		fmt.Print(err)
 	}
+
 	return rowMove, colMove
 }
 
-func (b *Board) Update(colMove, rowMove int, marker string) {
-	b.spaces[colMove][rowMove] = marker
-	b.Draw(true)
+func (b *Board) Update(colMove, rowMove int, symbol string) bool {
+	// space already occupied
+	if b.spaces[colMove][rowMove] != " " {
+		return false
+	}
+	b.spaces[colMove][rowMove] = symbol
+	return true
 }
 
 type Board struct {
@@ -87,6 +98,7 @@ func NewBoard(size int) *Board {
 
 func (b *Board) Draw(withGuides bool) {
 	if withGuides {
+		fmt.Println()
 		blankSpace := strings.Repeat(" ", 4)
 		for i := range b.spaces {
 			if i != 0 {
@@ -100,13 +112,16 @@ func (b *Board) Draw(withGuides bool) {
 			fmt.Printf("%d | %s | %s | %s |\n", i, row[0], row[1], row[2])
 			fmt.Println("  +---+---+---+")
 		}
+		fmt.Println()
 		return
 	}
 
+	fmt.Println()
 	fmt.Println("+---+---+---+")
 	for _, row := range b.spaces {
 		fmt.Printf("| %s | %s | %s |\n", row[0], row[1], row[2])
 		fmt.Println("+---+---+---+")
+		fmt.Println()
 	}
 }
 
@@ -130,4 +145,8 @@ func (b *Board) parseInput(input string) (int, int, error) {
 		return num1, num2, nil
 	}
 	return 0, 0, errors.New("invalid input. Try again")
+}
+
+func (b *Board) Check() bool {
+	return false
 }
