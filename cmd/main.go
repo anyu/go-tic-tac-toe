@@ -9,6 +9,13 @@ import (
 	"strings"
 )
 
+const (
+	p1Name   = "Player 1"
+	p1Symbol = "X"
+	p2Name   = "Player 2"
+	p2Symbol = "O"
+)
+
 func main() {
 	game := NewGame()
 	game.Start()
@@ -39,8 +46,8 @@ func (g *Game) Start() {
 	board := NewBoard(3)
 	board.Draw(true)
 
-	p1 := NewPlayer("Player 1", "X")
-	p2 := NewPlayer("Player 2", "O")
+	p1 := NewPlayer(p1Name, p1Symbol)
+	p2 := NewPlayer(p2Name, p2Symbol)
 	players := []*Player{p1, p2}
 
 	for {
@@ -51,7 +58,7 @@ func (g *Game) Start() {
 				break
 			}
 			board.Draw(true)
-			board.Check()
+			board.CheckWinner()
 		}
 	}
 }
@@ -147,6 +154,56 @@ func (b *Board) parseInput(input string) (int, int, error) {
 	return 0, 0, errors.New("invalid input. Try again")
 }
 
-func (b *Board) Check() bool {
-	return false
+func (b *Board) CheckWinner() {
+	b.CheckRows()
+	b.CheckColumns()
+	b.CheckDiagonals()
+}
+
+func (b *Board) CheckRows() {
+	for _, col := range b.spaces {
+		if col[0] != " " && col[0] == col[1] && col[1] == col[2] {
+			if col[0] == "X" {
+				fmt.Println("X is winner")
+			} else {
+				fmt.Println("O is winner")
+			}
+		}
+	}
+}
+
+func (b *Board) CheckColumns() {
+	for col := 0; col < len(b.spaces); col++ {
+		if b.spaces[0][col] != " " &&
+			b.spaces[0][col] == b.spaces[1][col] &&
+			b.spaces[1][col] == b.spaces[2][col] {
+			if b.spaces[0][col] == "X" {
+				fmt.Println("X is the winner")
+			} else {
+				fmt.Println("O is the winner")
+			}
+		}
+	}
+}
+
+func (b *Board) CheckDiagonals() {
+	if b.spaces[0][0] != " " &&
+		b.spaces[0][0] == b.spaces[1][1] &&
+		b.spaces[1][1] == b.spaces[2][2] {
+		if b.spaces[0][0] == "X" {
+			fmt.Println("X is the winner")
+		} else {
+			fmt.Println("O is the winner")
+		}
+	}
+
+	if b.spaces[2][0] != " " &&
+		b.spaces[2][0] == b.spaces[1][1] &&
+		b.spaces[1][1] == b.spaces[0][2] {
+		if b.spaces[2][0] == "X" {
+			fmt.Println("X is the winner")
+		} else {
+			fmt.Println("O is the winner")
+		}
+	}
 }
