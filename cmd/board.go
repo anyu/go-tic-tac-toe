@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	errInvalidInputFormat = errors.New("\ninvalid input. Enter 2 numbers separated by a comma\n")
-	errInvalidInputRange  = errors.New("\ninvalid input. Enter 2 numbers between 0 and 2\n")
+	errInvalidInputFormat = errors.New("\nInvalid input. Enter 2 numbers separated by a comma.\n")
+	errInvalidInputRange  = errors.New("\nInvalid input. Enter 2 numbers between 0 and 2.\n")
 )
 
 type Board struct {
@@ -62,7 +62,7 @@ func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
 	}
 
 	if b.cells[rowMove][colMove] != " " {
-		return 0, 0, errors.New("spot already taken. Please choose another spot")
+		return 0, 0, errors.New("\nSpot already taken. Please choose another spot.\n")
 	}
 
 	return colMove, rowMove, nil

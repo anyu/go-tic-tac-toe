@@ -7,9 +7,10 @@ import (
 )
 
 type Game struct {
-	board    *Board
-	players  []*Player
-	gameOver bool
+	board           *Board
+	players         []*Player
+	activePlayerIdx int
+	gameOver        bool
 }
 
 func NewGame(p []*Player) *Game {
@@ -24,36 +25,32 @@ func (g *Game) Start() {
 	fmt.Println("Let's play tic tac toe!")
 
 	g.board.Draw()
-
 	for !g.gameOver {
-		for _, p := range g.players {
-			if g.gameOver {
-				break
-			}
-			g.startPlayerTurn(p)
-		}
+		g.takeTurn()
 	}
 	reset(g.players)
 }
 
-func (g *Game) startPlayerTurn(p *Player) {
+func (g *Game) takeTurn() {
 	for {
-		colMove, rowMove, err := g.board.GetPlayerInput(p)
+		activePlayer := g.players[g.activePlayerIdx]
+		colMove, rowMove, err := g.board.GetPlayerInput(activePlayer)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		g.board.Update(colMove, rowMove, p.symbol)
+		g.board.Update(colMove, rowMove, activePlayer.symbol)
 		g.board.Draw()
 
-		if winner, found := g.checkWinner(); found {
+		if winner := g.checkWinner(); winner != nil {
 			fmt.Printf("Winner is: %s (%s)\n", winner.name, winner.symbol)
 			g.gameOver = true
 		} else if g.board.IsFull() {
 			fmt.Println("Tie game!")
 			g.gameOver = true
 		}
+		g.activePlayerIdx = g.activePlayerIdx ^ 1 // toggle between 0 and 1
 
 		break
 	}
@@ -77,18 +74,18 @@ func reset(players []*Player) {
 	}
 }
 
-func (g *Game) checkWinner() (*Player, bool) {
+func (g *Game) checkWinner() *Player {
 	if p := g.checkRows(); p != nil {
-		return p, true
+		return p
 	}
 	if p := g.checkColumns(); p != nil {
-		return p, true
+		return p
 	}
 
 	if p := g.checkDiagonals(); p != nil {
-		return p, true
+		return p
 	}
-	return nil, false
+	return nil
 }
 
 func (g *Game) checkRows() *Player {
