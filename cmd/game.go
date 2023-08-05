@@ -81,7 +81,6 @@ func (g *Game) checkWinner() *Player {
 	if p := g.checkColumns(); p != nil {
 		return p
 	}
-
 	if p := g.checkDiagonals(); p != nil {
 		return p
 	}
@@ -91,6 +90,7 @@ func (g *Game) checkWinner() *Player {
 func (g *Game) checkRows() *Player {
 	for _, row := range g.board.cells {
 		if row[0] == row[1] && row[1] == row[2] {
+
 			switch row[0] {
 			case g.players[0].symbol:
 				return g.players[0]
