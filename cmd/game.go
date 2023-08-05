@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Game represents a tic-tac-toe game, keeping track of the board, players, and game state.
 type Game struct {
 	board           *Board
 	players         []*Player
@@ -13,6 +14,7 @@ type Game struct {
 	gameOver        bool
 }
 
+// NewGame represents a new instance of Game with the specified players.
 func NewGame(p []*Player) *Game {
 	return &Game{
 		board:   NewBoard(3),
@@ -20,6 +22,8 @@ func NewGame(p []*Player) *Game {
 	}
 }
 
+// Start begins the game loop for players to take turns until the game is over.
+// Once the game is over, players have the option to play again.
 func (g *Game) Start() {
 	fmt.Println()
 	fmt.Println("Let's play tic tac toe!")

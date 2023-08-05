@@ -1,20 +1,17 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
 
-var (
-	errInvalidInputFormat = errors.New("\nInvalid input. Enter 2 numbers separated by a comma.\n")
-	errInvalidInputRange  = errors.New("\nInvalid input. Enter 2 numbers between 0 and 2.\n")
-)
-
+// Board represents the game board with cells arranged in a 2D grid.
 type Board struct {
 	cells [][]string
 }
 
+// NewBoard creates a new instance of Board with the specified size.
+// Each cell is initialized with an empty space.
 func NewBoard(size int) *Board {
 	grid := make([][]string, size)
 
@@ -27,6 +24,7 @@ func NewBoard(size int) *Board {
 	return &Board{cells: grid}
 }
 
+// Draw prints the current state of the game board, along with indices for easy reference.
 func (b *Board) Draw() {
 	fmt.Println()
 	blankSpace := strings.Repeat(" ", 4)
@@ -46,10 +44,13 @@ func (b *Board) Draw() {
 	return
 }
 
+// Update updates the board by placing the input symbol at the specified
+// row and column on the board.
 func (b *Board) Update(col, row int, symbol string) {
 	b.cells[row][col] = symbol
 }
 
+// IsFull returns true if the game board cells are all occupied, false otherwise.
 func (b *Board) IsFull() bool {
 	for _, row := range b.cells {
 		for _, cell := range row {
