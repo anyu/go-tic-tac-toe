@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 )
 
@@ -49,25 +46,6 @@ func (b *Board) Draw() {
 	return
 }
 
-func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
-	fmt.Printf("%s's turn. Choose a spot (eg. '2,1' for top right corner):\n", p.name)
-
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	input := scanner.Text()
-
-	colMove, rowMove, err := b.parseInput(input)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	if b.cells[rowMove][colMove] != " " {
-		return 0, 0, errors.New("\nSpot already taken. Please choose another spot.\n")
-	}
-
-	return colMove, rowMove, nil
-}
-
 func (b *Board) Update(col, row int, symbol string) {
 	b.cells[row][col] = symbol
 }
@@ -81,33 +59,4 @@ func (b *Board) IsFull() bool {
 		}
 	}
 	return true
-}
-
-func (b *Board) parseInput(input string) (int, int, error) {
-	parts := strings.Split(input, ",")
-	if len(parts) != 2 {
-		return 0, 0, errInvalidInputFormat
-	}
-
-	input1 := strings.TrimSpace(parts[0])
-	input2 := strings.TrimSpace(parts[1])
-
-	num1, err := strconv.Atoi(input1)
-	if err != nil {
-		return 0, 0, errInvalidInputRange
-	}
-
-	num2, err := strconv.Atoi(input2)
-	if err != nil {
-		return 0, 0, errInvalidInputRange
-	}
-
-	if !b.isValidMove(num1) || !b.isValidMove(num2) {
-		return 0, 0, errInvalidInputRange
-	}
-	return num1, num2, nil
-}
-
-func (b *Board) isValidMove(num int) bool {
-	return num >= 0 && num < len(b.cells)
 }

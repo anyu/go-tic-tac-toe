@@ -34,9 +34,14 @@ func (g *Game) Start() {
 func (g *Game) takeTurn() {
 	for {
 		activePlayer := g.players[g.activePlayerIdx]
-		colMove, rowMove, err := g.board.GetPlayerInput(activePlayer)
+		colMove, rowMove, err := activePlayer.GetInput()
 		if err != nil {
 			fmt.Println(err)
+			continue
+		}
+
+		if g.board.cells[rowMove][colMove] != " " {
+			fmt.Println("\nSpot already taken. Please choose another spot.")
 			continue
 		}
 
@@ -53,24 +58,6 @@ func (g *Game) takeTurn() {
 		g.activePlayerIdx = g.activePlayerIdx ^ 1 // toggle between 0 and 1
 
 		break
-	}
-}
-
-func reset(players []*Player) {
-	fmt.Println("\nWant to play again? (y/n):")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	input := scanner.Text()
-
-	if input == "yes" || input == "y" {
-		game := NewGame(players)
-		game.Start()
-		return
-	}
-
-	if input == "no" || input == "n" {
-		fmt.Println("Exiting game. Goodbye.")
-		return
 	}
 }
 
@@ -135,4 +122,22 @@ func (g *Game) checkDiagonals() *Player {
 		}
 	}
 	return nil
+}
+
+func reset(players []*Player) {
+	fmt.Println("\nWant to play again? (y/n):")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
+
+	if input == "yes" || input == "y" {
+		game := NewGame(players)
+		game.Start()
+		return
+	}
+
+	if input == "no" || input == "n" {
+		fmt.Println("Exiting game. Goodbye.")
+		return
+	}
 }
