@@ -30,33 +30,23 @@ func NewBoard(size int) *Board {
 	return &Board{cells: grid}
 }
 
-func (b *Board) Draw(withGuides bool) {
-	if withGuides {
-		fmt.Println()
-		blankSpace := strings.Repeat(" ", 4)
-		for i := range b.cells {
-			if i != 0 {
-				blankSpace = strings.Repeat(" ", 3)
-			}
-			fmt.Printf("%s%d", blankSpace, i)
-		}
-		fmt.Println("\n  +---+---+---+")
-
-		for i, row := range b.cells {
-			fmt.Printf("%d | %s | %s | %s |\n", i, row[0], row[1], row[2])
-			fmt.Println("  +---+---+---+")
-		}
-		fmt.Println()
-		return
-	}
-
+func (b *Board) Draw() {
 	fmt.Println()
-	fmt.Println("+---+---+---+")
-	for _, row := range b.cells {
-		fmt.Printf("| %s | %s | %s |\n", row[0], row[1], row[2])
-		fmt.Println("+---+---+---+")
-		fmt.Println()
+	blankSpace := strings.Repeat(" ", 4)
+	for i := range b.cells {
+		if i != 0 {
+			blankSpace = strings.Repeat(" ", 3)
+		}
+		fmt.Printf("%s%d", blankSpace, i)
 	}
+	fmt.Println("\n  +---+---+---+")
+
+	for i, row := range b.cells {
+		fmt.Printf("%d | %s | %s | %s |\n", i, row[0], row[1], row[2])
+		fmt.Println("  +---+---+---+")
+	}
+	fmt.Println()
+	return
 }
 
 func (b *Board) GetPlayerInput(p *Player) (int, int, error) {

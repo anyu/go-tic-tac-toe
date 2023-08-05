@@ -23,7 +23,7 @@ func (g *Game) Start() {
 	fmt.Println()
 	fmt.Println("Let's play tic tac toe!")
 
-	g.board.Draw(true)
+	g.board.Draw()
 
 	for !g.gameOver {
 		for _, p := range g.players {
@@ -33,7 +33,7 @@ func (g *Game) Start() {
 			g.startPlayerTurn(p)
 		}
 	}
-	g.reset()
+	reset(g.players)
 }
 
 func (g *Game) startPlayerTurn(p *Player) {
@@ -45,10 +45,10 @@ func (g *Game) startPlayerTurn(p *Player) {
 		}
 
 		g.board.Update(colMove, rowMove, p.symbol)
-		g.board.Draw(true)
+		g.board.Draw()
 
-		if player, found := g.checkWinner(); found {
-			fmt.Printf("Winner is: %s (%s)\n", player.name, player.symbol)
+		if winner, found := g.checkWinner(); found {
+			fmt.Printf("Winner is: %s (%s)\n", winner.name, winner.symbol)
 			g.gameOver = true
 		} else if g.board.IsFull() {
 			fmt.Println("Tie game!")
@@ -59,39 +59,33 @@ func (g *Game) startPlayerTurn(p *Player) {
 	}
 }
 
-func (g *Game) reset() {
+func reset(players []*Player) {
 	fmt.Println("\nWant to play again? (y/n):")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
 
 	if input == "yes" || input == "y" {
-		p1 := NewPlayer(p1Name, p1Symbol)
-		p2 := NewPlayer(p2Name, p2Symbol)
-		players := []*Player{p1, p2}
-
 		game := NewGame(players)
 		game.Start()
+		return
 	}
 
 	if input == "no" || input == "n" {
-		g.gameOver = true
 		fmt.Println("Exiting game. Goodbye.")
+		return
 	}
 }
 
 func (g *Game) checkWinner() (*Player, bool) {
-	p := g.checkRows()
-	if p != nil {
+	if p := g.checkRows(); p != nil {
 		return p, true
 	}
-	p = g.checkColumns()
-	if p != nil {
+	if p := g.checkColumns(); p != nil {
 		return p, true
 	}
 
-	p = g.checkDiagonals()
-	if p != nil {
+	if p := g.checkDiagonals(); p != nil {
 		return p, true
 	}
 	return nil, false
