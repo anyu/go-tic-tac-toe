@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+var (
+	errInvalidInputFormat = errors.New("\ninvalid input. Enter 2 numbers separated by a comma\n")
+	errInvalidInputRange  = errors.New("\ninvalid input. Enter 2 numbers between 0 and 2\n")
+)
+
 type Board struct {
 	cells [][]string
 }
@@ -57,44 +62,62 @@ func (b *Board) Draw(withGuides bool) {
 func (b *Board) parseInput(input string) (int, int, error) {
 	parts := strings.Split(input, ",")
 	if len(parts) != 2 {
-		return 0, 0, errors.New("invalid input. Enter 2 numbers separated by a comma")
+		return 0, 0, errInvalidInputFormat
 	}
 
 	input1 := strings.TrimSpace(parts[0])
 	input2 := strings.TrimSpace(parts[1])
 
-	validNums := make(map[string]bool)
-	for i, _ := range b.cells {
-		validNums[fmt.Sprintf("%d", i)] = true
+	num1, err := strconv.Atoi(input1)
+	if err != nil {
+		return 0, 0, errInvalidInputRange
 	}
 
-	if validNums[input1] && validNums[input2] {
-		num1, _ := strconv.Atoi(input1)
-		num2, _ := strconv.Atoi(input2)
-		return num1, num2, nil
+	num2, err := strconv.Atoi(input2)
+	if err != nil {
+		return 0, 0, errInvalidInputRange
 	}
-	return 0, 0, errors.New("invalid input. Try again")
+
+	if !b.isValidMove(num1) || !b.isValidMove(num2) {
+		return 0, 0, errInvalidInputRange
+	}
+	return num1, num2, nil
+}
+
+func (b *Board) isValidMove(num int) bool {
+	return num >= 0 && num < len(b.cells)
 }
 
 func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
-	fmt.Printf("%s's turn. Choose a spot (eg. '0,0' or '2,1'):\n", p.name)
+	fmt.Printf("%s's turn. Choose a spot (eg. '2,1' for top right corner):\n", p.name)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
 
-	rowMove, colMove, err := b.parseInput(input)
+	colMove, rowMove, err := b.parseInput(input)
 	if err != nil {
 		return 0, 0, err
 	}
 
-	if b.cells[colMove][rowMove] != " " {
+	if b.cells[rowMove][colMove] != " " {
 		return 0, 0, errors.New("spot already taken. Please choose another spot")
 	}
 
-	return rowMove, colMove, nil
+	return colMove, rowMove, nil
 }
 
-func (b *Board) Update(colMove, rowMove int, symbol string) {
-	b.cells[colMove][rowMove] = symbol
+func (b *Board) Update(col, row int, symbol string) {
+	b.cells[row][col] = symbol
+}
+
+func (b *Board) isFull() bool {
+	for _, row := range b.cells {
+		for _, cell := range row {
+			if cell == " " {
+				return false
+			}
+		}
+	}
+	return true
 }

@@ -7,8 +7,9 @@ import (
 )
 
 type Game struct {
-	board   *Board
-	players []*Player
+	board    *Board
+	players  []*Player
+	gameOver bool
 }
 
 func NewGame(p []*Player) *Game {
@@ -24,16 +25,20 @@ func (g *Game) Start() {
 
 	g.board.Draw(true)
 
-	for {
+	for !g.gameOver {
 		for _, p := range g.players {
+			if g.gameOver {
+				break
+			}
 			g.StartPlayerTurn(p)
 		}
 	}
+	g.Reset()
 }
 
 func (g *Game) StartPlayerTurn(p *Player) {
 	for {
-		rowMove, colMove, err := g.board.GetPlayerInput(p)
+		colMove, rowMove, err := g.board.GetPlayerInput(p)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -42,21 +47,20 @@ func (g *Game) StartPlayerTurn(p *Player) {
 		g.board.Update(colMove, rowMove, p.symbol)
 		g.board.Draw(true)
 
-		winner, isTie := g.CheckWinner()
-		if isTie {
+		if player, found := g.CheckWinner(); found {
+			fmt.Printf("Winner is: %s (%s)\n", player.name, player.symbol)
+			g.gameOver = true
+		} else if g.board.isFull() {
 			fmt.Println("Tie game!")
-			g.End()
+			g.gameOver = true
 		}
-		if winner != nil {
-			fmt.Printf("Winner is:%s\n", winner.name)
-			g.End()
-		}
+
 		break
 	}
 }
 
-func (g *Game) End() {
-	fmt.Println("Want to play again? (y/n):")
+func (g *Game) Reset() {
+	fmt.Println("\nWant to play again? (y/n):")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	input := scanner.Text()
@@ -71,35 +75,32 @@ func (g *Game) End() {
 	}
 
 	if input == "no" || input == "n" {
-		fmt.Println("Exiting game. Goodbye!")
-		os.Exit(1)
+		g.gameOver = true
+		fmt.Println("Exiting game. Goodbye.")
 	}
 }
 
 func (g *Game) CheckWinner() (*Player, bool) {
-	if g.isTieGame() {
-		return nil, true
-	}
 	p := g.CheckRows()
 	if p != nil {
-		return p, false
+		return p, true
 	}
 	p = g.CheckColumns()
 	if p != nil {
-		return p, false
+		return p, true
 	}
 
 	p = g.CheckDiagonals()
 	if p != nil {
-		return p, false
+		return p, true
 	}
 	return nil, false
 }
 
 func (g *Game) CheckRows() *Player {
-	for _, col := range g.board.cells {
-		if col[0] != " " && col[0] == col[1] && col[1] == col[2] {
-			switch col[0] {
+	for _, row := range g.board.cells {
+		if row[0] == row[1] && row[1] == row[2] {
+			switch row[0] {
 			case g.players[0].symbol:
 				return g.players[0]
 			case g.players[1].symbol:
@@ -111,10 +112,11 @@ func (g *Game) CheckRows() *Player {
 }
 
 func (g *Game) CheckColumns() *Player {
-	for col := 0; col < len(g.board.cells); col++ {
-		if g.board.cells[0][col] != " " &&
-			g.board.cells[0][col] == g.board.cells[1][col] &&
-			g.board.cells[1][col] == g.board.cells[2][col] {
+	cells := g.board.cells
+
+	for col := range cells {
+		if cells[0][col] == cells[1][col] &&
+			cells[1][col] == cells[2][col] {
 
 			switch g.board.cells[0][col] {
 			case g.players[0].symbol:
@@ -128,23 +130,13 @@ func (g *Game) CheckColumns() *Player {
 }
 
 func (g *Game) CheckDiagonals() *Player {
-	if g.board.cells[0][0] != " " &&
-		g.board.cells[0][0] == g.board.cells[1][1] &&
-		g.board.cells[1][1] == g.board.cells[2][2] {
+	cells := g.board.cells
 
-		switch g.board.cells[0][0] {
-		case g.players[0].symbol:
-			return g.players[0]
-		case g.players[1].symbol:
-			return g.players[1]
-		}
-	}
+	// check both diagonals
+	if cells[0][0] != " " && cells[0][0] == cells[1][1] && cells[1][1] == cells[2][2] ||
+		cells[2][0] != " " && cells[2][0] == cells[1][1] && cells[1][1] == cells[0][2] {
 
-	if g.board.cells[2][0] != " " &&
-		g.board.cells[2][0] == g.board.cells[1][1] &&
-		g.board.cells[1][1] == g.board.cells[0][2] {
-
-		switch g.board.cells[2][0] {
+		switch cells[1][1] { // check middle symbol
 		case g.players[0].symbol:
 			return g.players[0]
 		case g.players[1].symbol:
@@ -152,15 +144,4 @@ func (g *Game) CheckDiagonals() *Player {
 		}
 	}
 	return nil
-}
-
-func (g *Game) isTieGame() bool {
-	for _, row := range g.board.cells {
-		for _, cell := range row {
-			if cell == " " {
-				return false
-			}
-		}
-	}
-	return true
 }
