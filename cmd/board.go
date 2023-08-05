@@ -59,6 +59,40 @@ func (b *Board) Draw(withGuides bool) {
 	}
 }
 
+func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
+	fmt.Printf("%s's turn. Choose a spot (eg. '2,1' for top right corner):\n", p.name)
+
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	input := scanner.Text()
+
+	colMove, rowMove, err := b.parseInput(input)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	if b.cells[rowMove][colMove] != " " {
+		return 0, 0, errors.New("spot already taken. Please choose another spot")
+	}
+
+	return colMove, rowMove, nil
+}
+
+func (b *Board) Update(col, row int, symbol string) {
+	b.cells[row][col] = symbol
+}
+
+func (b *Board) IsFull() bool {
+	for _, row := range b.cells {
+		for _, cell := range row {
+			if cell == " " {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (b *Board) parseInput(input string) (int, int, error) {
 	parts := strings.Split(input, ",")
 	if len(parts) != 2 {
@@ -86,38 +120,4 @@ func (b *Board) parseInput(input string) (int, int, error) {
 
 func (b *Board) isValidMove(num int) bool {
 	return num >= 0 && num < len(b.cells)
-}
-
-func (b *Board) GetPlayerInput(p *Player) (int, int, error) {
-	fmt.Printf("%s's turn. Choose a spot (eg. '2,1' for top right corner):\n", p.name)
-
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	input := scanner.Text()
-
-	colMove, rowMove, err := b.parseInput(input)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	if b.cells[rowMove][colMove] != " " {
-		return 0, 0, errors.New("spot already taken. Please choose another spot")
-	}
-
-	return colMove, rowMove, nil
-}
-
-func (b *Board) Update(col, row int, symbol string) {
-	b.cells[row][col] = symbol
-}
-
-func (b *Board) isFull() bool {
-	for _, row := range b.cells {
-		for _, cell := range row {
-			if cell == " " {
-				return false
-			}
-		}
-	}
-	return true
 }

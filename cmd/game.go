@@ -30,13 +30,13 @@ func (g *Game) Start() {
 			if g.gameOver {
 				break
 			}
-			g.StartPlayerTurn(p)
+			g.startPlayerTurn(p)
 		}
 	}
-	g.Reset()
+	g.reset()
 }
 
-func (g *Game) StartPlayerTurn(p *Player) {
+func (g *Game) startPlayerTurn(p *Player) {
 	for {
 		colMove, rowMove, err := g.board.GetPlayerInput(p)
 		if err != nil {
@@ -47,10 +47,10 @@ func (g *Game) StartPlayerTurn(p *Player) {
 		g.board.Update(colMove, rowMove, p.symbol)
 		g.board.Draw(true)
 
-		if player, found := g.CheckWinner(); found {
+		if player, found := g.checkWinner(); found {
 			fmt.Printf("Winner is: %s (%s)\n", player.name, player.symbol)
 			g.gameOver = true
-		} else if g.board.isFull() {
+		} else if g.board.IsFull() {
 			fmt.Println("Tie game!")
 			g.gameOver = true
 		}
@@ -59,7 +59,7 @@ func (g *Game) StartPlayerTurn(p *Player) {
 	}
 }
 
-func (g *Game) Reset() {
+func (g *Game) reset() {
 	fmt.Println("\nWant to play again? (y/n):")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -80,24 +80,24 @@ func (g *Game) Reset() {
 	}
 }
 
-func (g *Game) CheckWinner() (*Player, bool) {
-	p := g.CheckRows()
+func (g *Game) checkWinner() (*Player, bool) {
+	p := g.checkRows()
 	if p != nil {
 		return p, true
 	}
-	p = g.CheckColumns()
+	p = g.checkColumns()
 	if p != nil {
 		return p, true
 	}
 
-	p = g.CheckDiagonals()
+	p = g.checkDiagonals()
 	if p != nil {
 		return p, true
 	}
 	return nil, false
 }
 
-func (g *Game) CheckRows() *Player {
+func (g *Game) checkRows() *Player {
 	for _, row := range g.board.cells {
 		if row[0] == row[1] && row[1] == row[2] {
 			switch row[0] {
@@ -111,7 +111,7 @@ func (g *Game) CheckRows() *Player {
 	return nil
 }
 
-func (g *Game) CheckColumns() *Player {
+func (g *Game) checkColumns() *Player {
 	cells := g.board.cells
 
 	for col := range cells {
@@ -129,7 +129,7 @@ func (g *Game) CheckColumns() *Player {
 	return nil
 }
 
-func (g *Game) CheckDiagonals() *Player {
+func (g *Game) checkDiagonals() *Player {
 	cells := g.board.cells
 
 	// check both diagonals
