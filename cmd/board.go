@@ -15,10 +15,10 @@ type Board struct {
 func NewBoard(size int) *Board {
 	grid := make([][]string, size)
 
-	for i := 0; i < size; i++ {
-		grid[i] = make([]string, size)
-		for j := 0; j < size; j++ {
-			grid[i][j] = " "
+	for rowIndex := range grid {
+		grid[rowIndex] = make([]string, size)
+		for colIndex := range grid[rowIndex] {
+			grid[rowIndex][colIndex] = " "
 		}
 	}
 	return &Board{cells: grid}
@@ -28,16 +28,16 @@ func NewBoard(size int) *Board {
 func (b *Board) Draw() {
 	fmt.Println()
 	blankSpace := strings.Repeat(" ", 4)
-	for i := range b.cells {
-		if i != 0 {
+	for rowIndex := range b.cells {
+		if rowIndex != 0 {
 			blankSpace = strings.Repeat(" ", 3)
 		}
-		fmt.Printf("%s%d", blankSpace, i)
+		fmt.Printf("%s%d", blankSpace, rowIndex)
 	}
 	fmt.Println("\n  +---+---+---+")
 
-	for i, row := range b.cells {
-		fmt.Printf("%d | %s | %s | %s |\n", i, row[0], row[1], row[2])
+	for rowIndex, row := range b.cells {
+		fmt.Printf("%d | %s | %s | %s |\n", rowIndex, row[0], row[1], row[2])
 		fmt.Println("  +---+---+---+")
 	}
 	fmt.Println()

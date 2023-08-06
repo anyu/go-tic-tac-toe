@@ -38,18 +38,18 @@ func (g *Game) Start() {
 func (g *Game) takeTurn() {
 	for {
 		activePlayer := g.players[g.activePlayerIdx]
-		colMove, rowMove, err := activePlayer.GetInput()
+		colIndex, rowIndex, err := activePlayer.GetInput()
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		if g.board.cells[rowMove][colMove] != " " {
+		if g.board.cells[rowIndex][colIndex] != " " {
 			fmt.Println("\nSpot already taken. Please choose another spot.")
 			continue
 		}
 
-		g.board.Update(colMove, rowMove, activePlayer.symbol)
+		g.board.Update(colIndex, rowIndex, activePlayer.symbol)
 		g.board.Draw()
 
 		if winner := g.checkWinner(); winner != nil {
