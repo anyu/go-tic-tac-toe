@@ -18,7 +18,7 @@ Let's play tic tac toe!
 2 |   |   |   |
   +---+---+---+
 
-Player 1's turn. Choose a spot (eg. '2,1' for top right corner):
+Player 1's turn. Choose a spot (eg. '2,0' for top right corner):
 ```
 
 ```

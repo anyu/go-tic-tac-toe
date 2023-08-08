@@ -35,7 +35,7 @@ func NewPlayer(name, symbol string) *Player {
 // GetInput prompts the player for their move and reads in input from the standard input.
 // It expects the player to enter the coordinates of their move in the format "column,row".
 func (p *Player) GetInput() (int, int, error) {
-	fmt.Printf("%s's turn. Choose a spot (eg. '2,1' for top right corner):\n", p.name)
+	fmt.Printf("%s's turn. Choose a spot (eg. '2,0' for top right corner):\n", p.name)
 
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
