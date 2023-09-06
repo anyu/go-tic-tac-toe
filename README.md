@@ -4,7 +4,7 @@ Simple terminal tic-tac-toe written in Go.
 
 ## Usage
 
-```shell
+```
 $ go run cmd/*.go
 
 Let's play tic tac toe!
